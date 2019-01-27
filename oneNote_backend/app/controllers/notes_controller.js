@@ -42,7 +42,7 @@ router.post('/',authenticateUser,function(req,res){
         })    
     })
 
-//localhost:3000/notes/id
+//localhost:3001/notes/id
 router.put('/:id',authenticateUser,validateId,function(req,res){
     let user = req.user.username
     let id = req.params.id;
