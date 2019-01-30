@@ -1,8 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
-import {Route,Link,Redirect} from 'react-router-dom'
+import {Link,Redirect} from 'react-router-dom'
 import axios from 'axios'
-import Create from '../Createpage/create'
 
 const modalStyle = {
     overlay : {
@@ -24,6 +23,9 @@ const modalStyle = {
         this.state = { 
             username: "", 
             password: "", 
+            token:'',
+            usernameErrorMsg:'',
+            passwordErrorMsg:'',
             modalIsOpen: false,
             isloggedIn:false
         };
@@ -31,7 +33,7 @@ const modalStyle = {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        this.form = this.form.bind(this);
+        //this.form = this.form.bind(this);
     }
   
     componentWillMount() {
@@ -66,37 +68,67 @@ const modalStyle = {
         [field]: e.currentTarget.value
       });
     }
+
+    validateUsername() {
+      let usernameLength = 3;
+      if(this.state.username.length == 0) {
+          this.setState( {
+              usernameErrorMsg: 'Cannot be blank'
+          })
+      }else if(this.state.username.length < usernameLength){
+        this.setState( {
+          usernameErrorMsg: 'username length should be greater than 3 characters'
+        })
+      }else {
+          this.setState( {
+              usernameErrorMsg: ''
+          })
+      }
+    }
+    validatePassword() {
+      let passwordLength = 5;
+      if(this.state.password.length == 0) {
+          this.setState( {
+              passwordErrorMsg: 'cannot be blank'
+          })
+      } else if(this.state.password.length < passwordLength) {
+          this.setState( {
+              passwordErrorMsg: 'Password should be of minimum 5 characters'
+          })
+      } else {
+          this.setState( {
+              passwordErrorMsg: ''
+          })
+      } 
+    }
+    
   
-    handleSubmit(e) {
+     handleSubmit(e) {
       e.preventDefault();
-      const user = Object.assign({}, this.state);
-      console.log(user) 
-      axios.get('http://localhost:3001/notebooks').then(response=>{
-          const notebooks = response.data
-          console.log(notebooks)
-          this.setState({
-            isloggedIn:true,
-            modalIsOpen:false
-          });
-          //return <Redirect to = '/create' />
-          //return <Route path = '/create' component = {Create}/>
-          //return <Link to = '/create'></Link>
-      })
-      // if(user){
-      //   this.setState({
-      //     isloggedIn:true,
-      //     modalIsOpen:false
-      //   })
-        
-      // }     
-      
+      this.validateUsername();
+      this.validatePassword();
+      const signUpData = {
+        username:this.state.username,
+        password:this.state.password
+      } 
+      axios.post('http://localhost:3001/users',signUpData).then(response=>{
+          const tokenValue = response.data['x-auth']
+          console.log(tokenValue)
+          if(tokenValue){
+            this.setState({
+              token:tokenValue,
+              isloggedIn:true,
+              modalIsOpen:false
+          })
+        }
+      })                   
     }
-    form() {
+    // form() {
   
-    }
+    // }
   
     render() {
-      console.log('entrign sign')
+      console.log('entering sign')
       return (
           <div className="auth-form">
           {this.state.modalIsOpen === true?     
@@ -104,8 +136,7 @@ const modalStyle = {
           contentLabel="Modal"
           style={modalStyle}
           className="auth-form-modal"
-          onRequestClose={this.closeModal} >
-  
+          onRequestClose={this.closeModal} >  
   
           <form onSubmit={this.handleSubmit} className="login-form-box">
                 <div>Welcome to OneNote!</div>
@@ -116,20 +147,22 @@ const modalStyle = {
                     value={this.state.username}
                     onChange={this.update("username")}
                     placeholder="Username" />
+                  <span>{this.state.usernameErrorMsg} </span>
   
                   <input type="password"
                     className="login-input"
                     value={this.state.password}
                     onChange={this.update("password")}
                     placeholder="Password" />
+                  <span>{this.state.passwordErrorMsg} </span>
                 </div>
   
                 <div className="input-buttons">
-                  <input className="button cancel" type="button" value="Cancel" onClick={this.closeModal} />
+                  <Link to = '/'><input className="button cancel" type="button" value="Cancel" onClick={this.closeModal} /></Link>
                   <input className="button submit" type="submit" value="Submit" />
                 </div>
               </form>
-        </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Link to='/create'></Link>:<Redirect to = '/' />}
+        </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Redirect to='/create' />:this.state.modalIsOpen}
         
       </div>
       );

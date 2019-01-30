@@ -1,5 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
+import axios from 'axios'
+import Create from '../Createpage/create'
 import {Link ,Redirect} from 'react-router-dom'
 
 const modalStyle = {
@@ -22,7 +24,11 @@ const modalStyle = {
         this.state = { 
             username: "", 
             password: "", 
-            modalIsOpen: false 
+            token:'',
+            usernameErrorMsg:'',
+            passwordErrorMsg:'',
+            modalIsOpen: false,
+            isloggedIn:false
         };
   
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -54,11 +60,70 @@ const modalStyle = {
         [field]: e.currentTarget.value
       });
     }
+
+    validateUsername() {
+      let usernameLength = 3;
+      if(this.state.username.length == 0) {
+          this.setState( {
+              usernameErrorMsg: 'Cannot be blank'
+          })
+      }else if(this.state.username.length < usernameLength){
+        this.setState( {
+          usernameErrorMsg: 'username should be greater than 3 characters'
+        })
+      }else {
+          this.setState( {
+              usernameErrorMsg: ''
+          })
+      }
+    }
+    validatePassword() {
+      let passwordLength = 5;
+      if(this.state.password.length == 0) {
+          this.setState( {
+              passwordErrorMsg: 'cannot be blank'
+          })
+      } else if(this.state.password.length < passwordLength) {
+          this.setState( {
+              passwordErrorMsg: 'Password should be of minimum 5 characters'
+          })
+      } else {
+          this.setState( {
+              passwordErrorMsg: ''
+          })
+      } 
+    }   
   
-    handleSubmit(e) {
+    async handleSubmit(e) {
       e.preventDefault();
-      const user = Object.assign({}, this.state);
-      console.log(user)
+      this.validateUsername();
+      this.validatePassword();
+      const loginData = {
+        username:this.state.username,
+        password:this.state.password
+      } 
+      
+      await axios.post('http://localhost:3001/users/login',loginData).then(response=>{
+          const tokenValue = response.data['x-auth']
+          console.log("calling post")
+          console.log(tokenValue)
+          if(tokenValue){
+            this.setState({
+              token:tokenValue,
+              isloggedIn:true,
+              modalIsOpen:false
+          })
+        }
+      }) 
+      // let tokenData = {
+      //   token:this.state.token
+      // }
+      // console.log(tokenData)
+      // axios.get('http://localhost:3001/notes',tokenData).then(response=>{
+      //   console.log("calling get")
+      //     const data = response
+      //     console.log(data)
+      // }) 
     }
     navLink() {
        return <Link to="/signup">sign up instead</Link>;
@@ -91,20 +156,25 @@ const modalStyle = {
                     value={this.state.username}
                     onChange={this.update("username")}
                     placeholder="Username" />
+                <span>{this.state.usernameErrorMsg} </span>
   
                   <input type="password"
                     className="login-input"
                     value={this.state.password}
                     onChange={this.update("password")}
                     placeholder="Password" />
+                <span>{this.state.passwordErrorMsg} </span>
                 </div>
   
                 <div className="input-buttons">
-                  <input className="button cancel" type="button" value="Cancel" onClick={this.closeModal} />
+                <Link to = '/'><input className="button cancel" type="button" value="Cancel" onClick={this.closeModal} /></Link>
                   <input className="button submit" type="submit" value="Submit" />
                 </div>
               </form>
-          </Modal>  :<Redirect to = '/' />}
+              </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Redirect to={{
+            pathname: '/create',
+            state: { token: this.state.token }
+        }}/>:this.state.modalIsOpen}
       </div>
       );
     }

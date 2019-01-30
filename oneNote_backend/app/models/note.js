@@ -10,6 +10,9 @@ const noteSchema = new Schema({
         type:String,
         required:true
     },
+    user:{
+        type:Schema.Types.ObjectId
+    },
     createdAt:{
         type:Date,
         default:Date.now

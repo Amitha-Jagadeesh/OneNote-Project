@@ -6,6 +6,8 @@
     "axios": "^0.18.0",
     "react": "^16.7.0",
     "react-bootstrap": "^0.32.4",
+    "react-cookie": "^3.0.8",
+    "react-cookies": "^0.1.0",
     "react-dom": "^16.7.0",
     "react-modal": "^3.8.1",
     "react-router-dom": "^4.3.1",

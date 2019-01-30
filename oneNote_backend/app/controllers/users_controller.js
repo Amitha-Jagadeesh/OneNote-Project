@@ -9,9 +9,8 @@ router.post('/',function(req,res){
     user.save().then((function(user){
         return user.generateToken()
     })).then (function(token){
-        res.header('x-auth', token).send()
-    })
-    .catch(function(err){
+        res.json({'x-auth':token}).send()
+    }).catch(function(err){
         res.send(err)
     })
 })
@@ -21,7 +20,7 @@ router.post('/login',function(req,res){
     User.findByCredentials(body.username,body.password).then((function(user){
         return user.generateToken()
     })).then (function(token){
-        res.header('x-auth', token).send()
+        res.json({'x-auth':token}).send()
     }).catch(function(err){
         res.status(401).send(err)
     })
