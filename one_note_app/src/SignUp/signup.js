@@ -161,7 +161,10 @@ const modalStyle = {
                   <input className="button submit" type="submit" value="Submit" />
                 </div>
               </form>
-        </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Redirect to='/create' />:this.state.modalIsOpen}
+        </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Redirect to={{
+            pathname: '/create',
+            state: { token: this.state.token }
+        }}/>:this.state.modalIsOpen}
         
       </div>
       );
