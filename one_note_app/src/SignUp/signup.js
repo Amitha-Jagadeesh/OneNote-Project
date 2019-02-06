@@ -100,8 +100,7 @@ const modalStyle = {
               passwordErrorMsg: ''
           })
       } 
-    }
-    
+    }   
   
      handleSubmit(e) {
       e.preventDefault();
@@ -137,8 +136,8 @@ const modalStyle = {
           style={modalStyle}
           className="auth-form-modal"
           onRequestClose={this.closeModal} >  
-  
           <form onSubmit={this.handleSubmit} className="login-form-box">
+  
                 <div>Welcome to OneNote!</div>
                 <div>Please SignUp</div>
                 <div className="login-form">
