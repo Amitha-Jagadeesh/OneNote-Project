@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
 import axios from 'axios'
-import Create from '../Createpage/create'
+//import Create from '../Createpage/create'
 import {Link ,Redirect} from 'react-router-dom'
 
 const modalStyle = {
@@ -27,6 +27,7 @@ const modalStyle = {
             token:'',
             usernameErrorMsg:'',
             passwordErrorMsg:'',
+            errormsg:'',
             modalIsOpen: false,
             isloggedIn:false
         };
@@ -34,14 +35,22 @@ const modalStyle = {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
-        this.form = this.form.bind(this);
+        //this.form = this.form.bind(this);
     }
   
     componentWillMount() {
+      console.log("calling component will mount")
       this.openModal();
       Modal.setAppElement('body');
-    } 
-  
+    }
+
+    componentDidUpdate() {
+      console.log('Calling component did mount')
+       if (this.state.isloggedIn === false && this.state.modalIsOpen===false) {
+         this.props.history.push("/");
+       }
+    }
+
     openModal() {
       this.setState({
           modalIsOpen: true
@@ -49,7 +58,6 @@ const modalStyle = {
     }
   
     closeModal() {
-    console.log(this.props)
       this.setState({
           modalIsOpen: false
         });
@@ -63,8 +71,8 @@ const modalStyle = {
 
     validateUsername() {
       let usernameLength = 3;
-      if(this.state.username.length == 0) {
-          this.setState( {
+      if(this.state.username.length === 0) {
+           this.setState( {
               usernameErrorMsg: 'Cannot be blank'
           })
       }else if(this.state.username.length < usernameLength){
@@ -79,7 +87,7 @@ const modalStyle = {
     }
     validatePassword() {
       let passwordLength = 5;
-      if(this.state.password.length == 0) {
+      if(this.state.password.length === 0) {
           this.setState( {
               passwordErrorMsg: 'cannot be blank'
           })
@@ -101,20 +109,25 @@ const modalStyle = {
       const loginData = {
         username:this.state.username,
         password:this.state.password
-      } 
-      
-      await axios.post('http://localhost:3001/users/login',loginData).then(response=>{
-          const tokenValue = response.data['x-auth']
-          console.log("calling post")
-          console.log(tokenValue)
-          if(tokenValue){
-            this.setState({
-              token:tokenValue,
-              isloggedIn:true,
-              modalIsOpen:false
-          })
-        }
-      }) 
+      }
+      if(loginData.username != "" && loginData.password !=""){
+        await axios.post('http://localhost:3001/users/login',loginData).then(response=>{           
+            const tokenValue = response.data['x-auth']
+            console.log("calling post")
+            console.log("token",tokenValue)
+            if(tokenValue){
+              this.setState({
+                token:tokenValue,
+                isloggedIn:true,
+                modalIsOpen:false
+            })
+          }else{
+              this.setState({
+                errormsg:'Invalid Username/Password'
+              })
+          }
+        }) 
+    }
       // let tokenData = {
       //   token:this.state.token
       // }
@@ -129,15 +142,15 @@ const modalStyle = {
        return <Link to="/signup">sign up instead</Link>;
     }
   
-    form() {
+    // form() {
   
-    }  
+    // }  
     
   
     render() {
       return (
           <div className="auth-form">
-          {this.state.modalIsOpen == true? 
+          {this.state.modalIsOpen === true? 
         <Modal isOpen={this.state.modalIsOpen}
           contentLabel="Modal"
           style={modalStyle}
@@ -149,7 +162,7 @@ const modalStyle = {
                 <div>Welcome to OneNote!</div>
                 <div>Please Login</div>
                 <div>or {this.navLink()}</div>
-  
+                <div>{this.state.errormsg}</div>
                 <div className="login-form">
                   <input type="text"
                     className="login-input"

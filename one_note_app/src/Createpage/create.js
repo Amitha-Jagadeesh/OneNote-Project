@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios'
-import Sidebar from '../sidebar/sidebar'
-import NoteIndex from '../note_index/note-index';
-import NoteEditor from '../note-editor/note-editor';
+// import Sidebar from '../sidebar/sidebar'
+// import NoteIndex from '../note_index/note-index';
+// import NoteEditor from '../note-editor/note-editor';
 
 class Create extends React.Component {
   constructor(props){

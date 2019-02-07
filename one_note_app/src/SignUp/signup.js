@@ -37,19 +37,19 @@ const modalStyle = {
     }
   
     componentWillMount() {
-      console.log('Calling open')
+      console.log('Calling component will mount')
       this.openModal();
       Modal.setAppElement('body');
     }
   
    componentDidUpdate() {
-     if (this.props.loggedIn) {
-       this.props.router.push("/home");
+    console.log('Calling component did mount')
+     if (this.state.isloggedIn === false && this.state.modalIsOpen===false) {
+       this.props.history.push("/");
      }
    }
   
     openModal() {
-      console.log('open')
       this.setState({
           modalIsOpen: true
         });
@@ -64,6 +64,7 @@ const modalStyle = {
     }
   
     update(field) {
+      console.log('calling update')
       return e => this.setState({
         [field]: e.currentTarget.value
       });
@@ -71,7 +72,7 @@ const modalStyle = {
 
     validateUsername() {
       let usernameLength = 3;
-      if(this.state.username.length == 0) {
+      if(this.state.username.length === 0) {
           this.setState( {
               usernameErrorMsg: 'Cannot be blank'
           })
@@ -87,7 +88,7 @@ const modalStyle = {
     }
     validatePassword() {
       let passwordLength = 5;
-      if(this.state.password.length == 0) {
+      if(this.state.password.length === 0) {
           this.setState( {
               passwordErrorMsg: 'cannot be blank'
           })
@@ -109,25 +110,33 @@ const modalStyle = {
       const signUpData = {
         username:this.state.username,
         password:this.state.password
-      } 
-      axios.post('http://localhost:3001/users',signUpData).then(response=>{
-          const tokenValue = response.data['x-auth']
-          console.log(tokenValue)
-          if(tokenValue){
-            this.setState({
-              token:tokenValue,
-              isloggedIn:true,
-              modalIsOpen:false
-          })
-        }
-      })                   
+      }
+      
+      if(signUpData.username != "" && signUpData.password != ""){
+        axios.post('http://localhost:3001/users',signUpData).then(response=>{
+          const errormsg = response.data.errmsg
+            const tokenValue = response.data['x-auth']
+            console.log("token",tokenValue)
+            if(tokenValue){
+                this.setState({
+                  token:tokenValue,
+                  isloggedIn:true,
+                  modalIsOpen:false
+              })
+            }else if(errormsg){
+              this.setState({
+                usernameErrorMsg:"Username should be Unique"
+              })
+            }
+        })   
+      }                
     }
     // form() {
   
     // }
   
     render() {
-      console.log('entering sign')
+      console.log('entering render')
       return (
           <div className="auth-form">
           {this.state.modalIsOpen === true?     
@@ -136,8 +145,7 @@ const modalStyle = {
           style={modalStyle}
           className="auth-form-modal"
           onRequestClose={this.closeModal} >  
-          <form onSubmit={this.handleSubmit} className="login-form-box">
-  
+          <form onSubmit={this.handleSubmit} className="login-form-box">  
                 <div>Welcome to OneNote!</div>
                 <div>Please SignUp</div>
                 <div className="login-form">
@@ -164,7 +172,7 @@ const modalStyle = {
         </Modal>:this.state.isloggedIn === true && this.state.modalIsOpen === false?<Redirect to={{
             pathname: '/create',
             state: { token: this.state.token }
-        }}/>:this.state.modalIsOpen}
+        }}/>:this.state.modalIsOpen}:
         
       </div>
       );

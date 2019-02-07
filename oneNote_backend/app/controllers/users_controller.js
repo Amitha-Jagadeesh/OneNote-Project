@@ -22,7 +22,8 @@ router.post('/login',function(req,res){
     })).then (function(token){
         res.json({'x-auth':token}).send()
     }).catch(function(err){
-        res.status(401).send(err)
+        res.send(err)
+        console.log(err)
     })
 })
 

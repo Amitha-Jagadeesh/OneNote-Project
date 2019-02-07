@@ -1,7 +1,7 @@
 import React from 'react';
 //import Greeting from './Greetings/greeting';
 import Home from './Home'
-import {BrowserRouter,Link,Route} from 'react-router-dom'
+import {BrowserRouter,Switch,Route} from 'react-router-dom'
 import SessionLoginForm from './Login/login'
 import SessionSignUpForm from './SignUp/signup'
 import Create from './Createpage/create'
@@ -12,10 +12,13 @@ class App extends React.Component{
     return(  
       <BrowserRouter>
          <div className = "splash-container">
-          <Route path = '/' component = {Home} exact/>
-          <Route path = '/login' component = {SessionLoginForm} />
-          <Route path = '/signup' component = {SessionSignUpForm} />
-          <Route path = '/create' component = {Create} />
+         <Switch>         
+            <Route path = '/' component = {Home} exact/>
+            <Route path = '/login' component = {SessionLoginForm} exact />
+            <Route path = '/signup' component = {SessionSignUpForm} exact/>
+            <Route path = '/create' component = {Create} exact/>
+         </Switch>
+
         </div>
       </BrowserRouter>    
     )
